@@ -2,17 +2,18 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const Notice = require("./models/Notice");
 
 const app = express();
-const PORT = 5000;
 
-// Middleware
-app.use(cors());
+// Render apna PORT provide karega.
+// Local computer par PORT 5000 use hoga.
+const PORT = process.env.PORT || 5000;
+
+// JSON data receive karne ke liye
 app.use(express.json());
 
-// MongoDB Connection
+// MongoDB Atlas connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("MongoDB Connected Successfully!");
@@ -21,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI)
     console.log("MongoDB Connection Failed:", error.message);
   });
 
-// Home Route
+// Home route
 app.get("/", (req, res) => {
   res.send("Smart Exam Practice System Backend is Running!");
 });
@@ -30,13 +31,13 @@ app.get("/", (req, res) => {
 app.post("/notices", async (req, res) => {
   try {
     const notice = new Notice(req.body);
+
     await notice.save();
 
     res.status(201).json({
       message: "Notice saved successfully",
       notice: notice
     });
-
   } catch (error) {
     res.status(500).json({
       message: "Error saving notice",
@@ -45,13 +46,12 @@ app.post("/notices", async (req, res) => {
   }
 });
 
-// Get All Notices
+// Get all Notices
 app.get("/notices", async (req, res) => {
   try {
     const notices = await Notice.find().sort({ date: -1 });
 
     res.json(notices);
-
   } catch (error) {
     res.status(500).json({
       message: "Error fetching notices",
@@ -60,7 +60,7 @@ app.get("/notices", async (req, res) => {
   }
 });
 
-// Start Server
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
